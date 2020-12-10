@@ -1,3 +1,5 @@
+import re
+
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -35,3 +37,11 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 '''
 
 # write your code here
+while True:
+    url = input().replace("https://", "").replace("http://", "").replace("www.", "")
+    if url == 'bloomberg.com':
+        print(bloomberg_com)
+    elif url == 'nytimes.com':
+        print(nytimes_com)
+    elif url == 'exit':
+        break
