@@ -1,5 +1,6 @@
 import re
-
+import sys
+import os
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -36,12 +37,42 @@ Twitter and Square Chief Executive Officer Jack Dorsey
  Tuesday, a signal of the strong ties between the Silicon Valley giants.
 '''
 
+def valid_url(url):
+    url = re.search("^(https?://(www\.)?)?\w+\.\w{2,3}$", url)
+    return url
+
+def match_url(url):
+    base_url = re.search("(?<=www.)?\w+\.\w{2,3}$", url)
+    web_pages = {
+        'nytimes.com': nytimes_com,
+        'bloomberg.com': bloomberg_com
+    }
+    return web_pages.get(base_url.group(), None)
+
+
+# Get saved tabs and create on
+saved_tabs_dir = sys.argv[-1]
+file_names = []
+if not os.path.isdir(saved_tabs_dir):
+    os.makedirs(saved_tabs_dir)
 # write your code here
 while True:
-    url = input().replace("https://", "").replace("http://", "").replace("www.", "")
-    if url == 'bloomberg.com':
-        print(bloomberg_com)
-    elif url == 'nytimes.com':
-        print(nytimes_com)
-    elif url == 'exit':
+    command = input()
+    validurl = valid_url(command)
+    if validurl:
+        validurl = validurl.group()
+        webpage = match_url(validurl)
+        print(webpage)
+        if webpage:
+            file_name = validurl.split('.')[0]
+            with open(os.path.join(saved_tabs_dir, file_name), 'w') as f:
+                f.write(webpage)
+        else:
+            print('Error Page Not Found')
+    elif command == 'exit':
         break
+    elif command in file_names:
+        with open(os.path.join(saved_tabs_dir, command)) as f:
+            print(f.read())
+    else:
+        print('Error Invalid Command')
