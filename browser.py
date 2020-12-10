@@ -4,7 +4,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from colorama import init
-from colorama import Fore
+from colorama import Fore, Style
 init()
 
 def valid_url(url):
@@ -12,12 +12,24 @@ def valid_url(url):
     return url
 
 def match_url(url):
+    global file_names
     if 'https' not in url:
         url = "https://" + url
     response = requests.get(url)
     if response:
         webpage = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
-        return webpage.get_text()
+        file_name = validurl.split('.')[-2]
+        file_names.append(file_name)
+        with open(os.path.join(saved_tabs_dir, file_name), 'w', encoding='utf-8') as f:
+            for element in webpage.find_all(re.compile("p|a|ul|ol|li|^h[1-6]$")):
+                if element.name == "a":
+                    f.write(f"{Fore.BLUE + element.get_text()}\n")
+                    f.write(f"{Style.RESET_ALL}\n")
+                else:
+                    f.write(f"{element.get_text()}\n")
+        return file_name
+    else:
+        print('Error Page Not Found')
     return None
 
 def add_to_history(file_name):
@@ -42,15 +54,9 @@ while True:
     validurl = valid_url(command)
     if validurl:
         validurl = validurl[0]
-        webpage = match_url(validurl)
-        if webpage:
-            add_to_history(file_name)
-            file_name = validurl.split('.')[-2]
-            file_names.append(file_name)
-            with open(os.path.join(saved_tabs_dir, file_name), 'w', encoding='utf-8') as f:
-                f.write(webpage)
-        else:
-            print('Error Page Not Found')
+        add_to_history(file_name)
+        file_name = match_url(validurl)
+        if not file_name:
             continue
     elif command == 'exit':
         break
@@ -58,10 +64,14 @@ while True:
         add_to_history(file_name)
         file_name = command
     elif command == 'back':
-        file_name = history.pop()
+        if history:
+            file_name = history.pop()
+        else:
+            print('Error Invalid Command: No History to Show')
+            continue
     else:
         print('Error Invalid Command')
         continue
     # Display Web Page
     with open(os.path.join(saved_tabs_dir, file_name), encoding='utf-8') as f:
-        print(Fore.BLUE + f.read())
+        print(f.read())
