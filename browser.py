@@ -49,10 +49,17 @@ def match_url(url):
     }
     return web_pages.get(base_url.group(), None)
 
+def add_to_history(file_name):
+    global history
+    if file_name:
+        history.append(file_name)
 
 # Get saved tabs and create on
 saved_tabs_dir = sys.argv[-1]
 file_names = []
+file_name = ''
+# Browsing History
+history = []
 if not os.path.isdir(saved_tabs_dir):
     os.makedirs(saved_tabs_dir)
 # write your code here
@@ -62,17 +69,24 @@ while True:
     if validurl:
         validurl = validurl.group()
         webpage = match_url(validurl)
-        print(webpage)
         if webpage:
+            add_to_history(file_name)
             file_name = validurl.split('.')[0]
             with open(os.path.join(saved_tabs_dir, file_name), 'w') as f:
                 f.write(webpage)
         else:
             print('Error Page Not Found')
+            continue
     elif command == 'exit':
         break
     elif command in file_names:
-        with open(os.path.join(saved_tabs_dir, command)) as f:
-            print(f.read())
+        add_to_history(file_name)
+        file_name = command
+    elif command == 'back':
+        file_name = history.pop()
     else:
         print('Error Invalid Command')
+        continue
+    # Display Web Page
+    with open(os.path.join(saved_tabs_dir, file_name)) as f:
+        print(f.read())
