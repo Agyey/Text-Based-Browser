@@ -3,9 +3,12 @@ import sys
 import os
 import requests
 from bs4 import BeautifulSoup
+from colorama import init
+from colorama import Fore
+init()
 
 def valid_url(url):
-    url = re.search("^(https?://(www\.)?)?\w+(\.\w+)+", url)
+    url = re.search("^(https?://(www\.)?)?[\w-]+(\.[\w-]+)+", url)
     return url
 
 def match_url(url):
@@ -38,7 +41,7 @@ while True:
     command = input()
     validurl = valid_url(command)
     if validurl:
-        validurl = validurl.group()
+        validurl = validurl[0]
         webpage = match_url(validurl)
         if webpage:
             add_to_history(file_name)
@@ -61,4 +64,4 @@ while True:
         continue
     # Display Web Page
     with open(os.path.join(saved_tabs_dir, file_name), encoding='utf-8') as f:
-        print(f.read())
+        print(Fore.BLUE + f.read())
