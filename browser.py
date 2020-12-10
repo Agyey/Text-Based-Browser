@@ -2,7 +2,7 @@ import re
 import sys
 import os
 import requests
-
+from bs4 import BeautifulSoup
 
 def valid_url(url):
     url = re.search("^(https?://(www\.)?)?\w+(\.\w+)+", url)
@@ -13,8 +13,8 @@ def match_url(url):
         url = "https://" + url
     response = requests.get(url)
     if response:
-        webpage = response.content.decode('latin')
-        return webpage
+        webpage = BeautifulSoup(response.content.decode('utf-8'), "html.parser")
+        return webpage.get_text()
     return None
 
 def add_to_history(file_name):
@@ -44,7 +44,7 @@ while True:
             add_to_history(file_name)
             file_name = validurl.split('.')[-2]
             file_names.append(file_name)
-            with open(os.path.join(saved_tabs_dir, file_name), 'w', encoding='latin') as f:
+            with open(os.path.join(saved_tabs_dir, file_name), 'w', encoding='utf-8') as f:
                 f.write(webpage)
         else:
             print('Error Page Not Found')
